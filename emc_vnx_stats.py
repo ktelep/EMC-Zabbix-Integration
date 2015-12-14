@@ -35,20 +35,7 @@ def convert_to_local(timestamp):
 
 def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
                         ecom_pass="#1Password"):
-    """Discover info on disks in the VNX array
-
-
-       Arguments-
-           device_id:     (string) The DeviceID of the disk in the array
-           array_serial:  (string) Serial number of array to discover
-           ecom_ip:       (string) IP Address of SMI-S/ECOM Server
-           ecom_user:     (string) Username for ECOM auth, default is "admin"
-           ecom_pass:     (string) Password for ECOM auth, default is "$1Password"
-
-       Returns-
-           Zabbix compatible List of Hashes to be JSONified or appended to additional data
-
-    """
+    """ Collect statistics for the Storage Processors """
 
     ecom_url = "https://%s:5989" % ecom_ip
     ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
@@ -114,10 +101,12 @@ def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
 
     print "------------------------------------------------------"
     print "Current Time: %s    Stat Time: %s" % (datetime.now().strftime("%c"), datetime.fromtimestamp(int(timestamp)).strftime("%c"))
+
     with open("/tmp/sp_data.tmp","w") as f:
         f.write("\n".join(zabbix_data))
 
     subprocess.call([sender_command,"-v","-c",config_path,"-s",array_serial,"-T","-i","/tmp/sp_data.tmp"])
+
     print "------------------------------------------------------\n"
 
 
@@ -129,6 +118,47 @@ def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
     # 4 = Snap 
     # 5 = Volumes
 
+def main():
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "s:dvph",
+                                   ["serial=",'disks','volumes','procs','help'])
+    except getopt.GetoptError as err:
+        print(err)
+        sys.exit(2)
+
+    array_serial = None
+    item = None
+
+    for o, a in opts:
+        if o in ("-s","--serial"):
+            array_serial = a
+        elif o in ("-d","--disks"):
+            item = "Disks"
+        elif o in ("-d","--volumes"):
+            item = "Volumes"
+        elif o in ("-p","--procs"):
+            item = "SPs"
+
+    if not array_serial:
+        print "No serial provided"
+        sys.exit(2)
+    elif not item:
+        print "No item specified for stats collection"
+        sys.exit(2)
+
+    if item == "Disks":
+        pass
+        sys.exit()
+    elif item == "Volumes":
+        pass
+        sys.exit()
+    elif item == "SPs":
+        sp_stats_query(array_serial,ecom_ip) 
+        sys.exit()
+
+
+
 if __name__ == "__main__":
-    sp_stats_query(sys.argv[1],ecom_ip)
+    main()
 
