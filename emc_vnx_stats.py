@@ -1,5 +1,6 @@
 #!/bin/env python
 
+import os
 import csv
 import sys
 import json
@@ -33,17 +34,16 @@ def convert_to_local(timestamp):
 
     return local_time
 
-def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
+def get_stats(array_serial, ecom_ip, instance_id, ecom_user="admin",
                         ecom_pass="#1Password"):
-    """ Collect statistics for the Storage Processors """
+
+    """ Collect performance statistics """
 
     ecom_url = "https://%s:5989" % ecom_ip
     ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
                                       default_namespace="/root/emc")
 
-    SP_Stat_InstanceID = "CLARiiON+%s+EMC_MANIFEST_DEFAULT+FEAdapt" % array_serial
 
-    # Get  
     info = ecom_conn.ExecQuery("DMTF:CQL",
                                "SELECT SampleInterval from CIM_StatisticsCollection where InstanceID='CLARiiON+%s'" % array_serial)
     
@@ -60,7 +60,7 @@ def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
     
     # Figure out what stats we're gathering
     manifest = ecom_conn.ExecQuery("DMTF:CQL",
-                        "SELECT * FROM Clar_Blockmanifest where InstanceID='%s'" % SP_Stat_InstanceID)
+                        "SELECT * FROM Clar_Blockmanifest where InstanceID='%s'" % instance_id)
 
     header_row =  manifest[0]["CSVSequence"]
 
@@ -76,7 +76,16 @@ def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
                                          stats_service,
                                          StatisticsFormat=pywbem.Uint16(2))
 
-    sp_data = stat_output[1]["Statistics"][2]
+    return (header_row,stat_output[1]["Statistics"])
+
+def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
+                        ecom_pass="#1Password"):
+
+    SP_Stat_InstanceID = "CLARiiON+%s+EMC_MANIFEST_DEFAULT+FEAdapt" % array_serial
+
+    header_row, stat_output = get_stats(array_serial, ecom_ip, SP_Stat_InstanceID, ecom_user, ecom_pass)
+   
+    sp_data = stat_output[2]
     f = StringIO.StringIO(sp_data)
     reader = csv.reader(f, delimiter=';')
 
@@ -102,10 +111,24 @@ def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
     print "------------------------------------------------------"
     print "Current Time: %s    Stat Time: %s" % (datetime.now().strftime("%c"), datetime.fromtimestamp(int(timestamp)).strftime("%c"))
 
-    with open("/tmp/sp_data.tmp","w") as f:
-        f.write("\n".join(zabbix_data))
 
-    subprocess.call([sender_command,"-v","-c",config_path,"-s",array_serial,"-T","-i","/tmp/sp_data.tmp"])
+    # Check if we've already collected at this timestamp, if so we don't send anything
+    last_stat = None
+
+    if os.path.isfile("/tmp/sp_last.tmp"):
+        with open("/tmp/sp_last.tmp") as f:
+            last_stat = f.readline()
+    
+    if timestamp != last_stat:
+        with open("/tmp/sp_data.tmp","w") as f:
+            f.write("\n".join(zabbix_data))
+    
+        subprocess.call([sender_command,"-v","-c",config_path,"-s",array_serial,"-T","-i","/tmp/sp_data.tmp"])
+        with open("/tmp/sp_last.tmp","w") as f:
+            f.write(timestamp)
+
+    else:
+        print "Already posted stats to Zabbix, skipping"
 
     print "------------------------------------------------------\n"
 
