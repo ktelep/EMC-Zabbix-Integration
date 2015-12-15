@@ -3,19 +3,17 @@
 import os
 import csv
 import sys
-import json
 import getopt
 import pywbem
 import datetime
 import StringIO
-import tempfile
 import subprocess
 from datetime import datetime, timedelta
 
-ecom_ip="10.5.36.148"
+ecom_ip="10.5.36.50"
 sender_command = "/usr/local/bin/zabbix_sender"
 config_path = "/etc/zabbix_agentd.conf"
-sample_interval = 10
+sample_interval = 5
 
 
 def convert_to_local(timestamp):
@@ -124,6 +122,10 @@ def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
             f.write("\n".join(zabbix_data))
     
         subprocess.call([sender_command,"-v","-c",config_path,"-s",array_serial,"-T","-i","/tmp/sp_data.tmp"])
+
+        print "\n".join(zabbix_data)
+        print "\n"
+
         with open("/tmp/sp_last.tmp","w") as f:
             f.write(timestamp)
 

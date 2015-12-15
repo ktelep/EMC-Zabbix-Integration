@@ -6,7 +6,7 @@ import getopt
 import pywbem
 
 
-ecom_ip = "10.5.36.148"
+ecom_ip = "10.5.36.50"
 
 ecom_queries = dict()
 ecom_queries["physical_disk"]= "SELECT * FROM CIM_DiskDrive where SystemName='CLARiiON+%s'"

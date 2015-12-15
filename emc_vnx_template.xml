@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2015-12-14T20:07:51Z</date>
+    <date>2015-12-15T20:30:48Z</date>
     <groups>
         <group>
             <name>VNX Storage Array</name>
@@ -151,7 +151,7 @@
                             <multiplier>0</multiplier>
                             <snmp_oid/>
                             <key>emc.vnx.perf.PercentUtilization[{#SPPERFDEVICEID}]</key>
-                            <delay>300</delay>
+                            <delay>30</delay>
                             <history>90</history>
                             <trends>365</trends>
                             <status>0</status>
@@ -168,7 +168,7 @@
                             <snmpv3_privpassphrase/>
                             <formula>1</formula>
                             <delay_flex/>
-                            <params>100*(last(&quot;emc.vnx.perf.IOTimeCounter&quot;)/(last(&quot;emc.vnx.perf.IOTimeCounter&quot;)+last(&quot;emc.vnx.perf.IdleTimeCounter&quot;)))</params>
+                            <params>100*(last(&quot;emc.vnx.perf.IOTimeCounter[{#SPPERFDEVICEID}]&quot;)/(last(&quot;emc.vnx.perf.IOTimeCounter[{#SPPERFDEVICEID}]&quot;)+last(&quot;emc.vnx.perf.IdleTimeCounter[{#SPPERFDEVICEID}]&quot;)))</params>
                             <ipmi_sensor/>
                             <data_type>0</data_type>
                             <authtype>0</authtype>
@@ -244,7 +244,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>1</delta>
+                            <delta>2</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -287,7 +287,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>1</delta>
+                            <delta>2</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -330,7 +330,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>1</delta>
+                            <delta>2</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -373,7 +373,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>1</delta>
+                            <delta>2</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -416,7 +416,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>1</delta>
+                            <delta>2</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -502,7 +502,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>1</delta>
+                            <delta>2</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -545,7 +545,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units>KB/sec</units>
-                            <delta>1</delta>
+                            <delta>2</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -588,7 +588,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>1</delta>
+                            <delta>2</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -846,7 +846,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>1</delta>
+                            <delta>2</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
