@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2015-12-15T20:30:48Z</date>
+    <date>2015-12-15T20:57:33Z</date>
     <groups>
         <group>
             <name>VNX Storage Array</name>
@@ -37,7 +37,7 @@
                     <snmp_oid/>
                     <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--procs&quot;]</key>
                     <delay>60</delay>
-                    <history>90</history>
+                    <history>2</history>
                     <trends>365</trends>
                     <status>0</status>
                     <value_type>4</value_type>
@@ -155,9 +155,9 @@
                             <history>90</history>
                             <trends>365</trends>
                             <status>0</status>
-                            <value_type>3</value_type>
+                            <value_type>0</value_type>
                             <allowed_hosts/>
-                            <units/>
+                            <units>Percent</units>
                             <delta>0</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
@@ -535,7 +535,7 @@
                             <name>{#SPNAME} - Cache - Write KB Flushed</name>
                             <type>2</type>
                             <snmp_community/>
-                            <multiplier>0</multiplier>
+                            <multiplier>1</multiplier>
                             <snmp_oid/>
                             <key>emc.vnx.perf.EMCWriteKBytesFlushed[{#SPPERFDEVICEID}]</key>
                             <delay>0</delay>
@@ -544,7 +544,7 @@
                             <status>0</status>
                             <value_type>3</value_type>
                             <allowed_hosts/>
-                            <units>KB/sec</units>
+                            <units>Bps</units>
                             <delta>2</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
@@ -553,7 +553,7 @@
                             <snmpv3_authpassphrase/>
                             <snmpv3_privprotocol>0</snmpv3_privprotocol>
                             <snmpv3_privpassphrase/>
-                            <formula>1</formula>
+                            <formula>1024</formula>
                             <delay_flex/>
                             <params/>
                             <ipmi_sensor/>
@@ -664,7 +664,7 @@
                             <name>{#SPNAME} - KB Read</name>
                             <type>2</type>
                             <snmp_community/>
-                            <multiplier>0</multiplier>
+                            <multiplier>1</multiplier>
                             <snmp_oid/>
                             <key>emc.vnx.perf.KBytesRead[{#SPPERFDEVICEID}]</key>
                             <delay>0</delay>
@@ -673,7 +673,7 @@
                             <status>0</status>
                             <value_type>3</value_type>
                             <allowed_hosts/>
-                            <units>KB/sec</units>
+                            <units>Bps</units>
                             <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
@@ -682,7 +682,7 @@
                             <snmpv3_authpassphrase/>
                             <snmpv3_privprotocol>0</snmpv3_privprotocol>
                             <snmpv3_privpassphrase/>
-                            <formula>1</formula>
+                            <formula>1024</formula>
                             <delay_flex/>
                             <params/>
                             <ipmi_sensor/>
@@ -707,7 +707,7 @@
                             <name>{#SPNAME} - KB Transferred</name>
                             <type>2</type>
                             <snmp_community/>
-                            <multiplier>0</multiplier>
+                            <multiplier>1</multiplier>
                             <snmp_oid/>
                             <key>emc.vnx.perf.KBytesTransferred[{#SPPERFDEVICEID}]</key>
                             <delay>0</delay>
@@ -716,7 +716,7 @@
                             <status>0</status>
                             <value_type>3</value_type>
                             <allowed_hosts/>
-                            <units>KB/sec</units>
+                            <units>Bps</units>
                             <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
@@ -725,7 +725,7 @@
                             <snmpv3_authpassphrase/>
                             <snmpv3_privprotocol>0</snmpv3_privprotocol>
                             <snmpv3_privpassphrase/>
-                            <formula>1</formula>
+                            <formula>1024</formula>
                             <delay_flex/>
                             <params/>
                             <ipmi_sensor/>
@@ -750,7 +750,7 @@
                             <name>{#SPNAME} - KB Write</name>
                             <type>2</type>
                             <snmp_community/>
-                            <multiplier>0</multiplier>
+                            <multiplier>1</multiplier>
                             <snmp_oid/>
                             <key>emc.vnx.perf.KBytesWritten[{#SPPERFDEVICEID}]</key>
                             <delay>0</delay>
@@ -759,7 +759,7 @@
                             <status>0</status>
                             <value_type>3</value_type>
                             <allowed_hosts/>
-                            <units>KB/sec</units>
+                            <units>Bps</units>
                             <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
@@ -768,7 +768,7 @@
                             <snmpv3_authpassphrase/>
                             <snmpv3_privprotocol>0</snmpv3_privprotocol>
                             <snmpv3_privpassphrase/>
-                            <formula>1</formula>
+                            <formula>1024</formula>
                             <delay_flex/>
                             <params/>
                             <ipmi_sensor/>

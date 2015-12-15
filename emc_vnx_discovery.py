@@ -6,8 +6,12 @@ import getopt
 import pywbem
 
 
+# User Configurable Parameters
+# --------------------------------
 ecom_ip = "10.5.36.50"
 
+# Global Queries
+# --------------------------------
 ecom_queries = dict()
 ecom_queries["physical_disk"]= "SELECT * FROM CIM_DiskDrive where SystemName='CLARiiON+%s'"
 ecom_queries["volume"]="SELECT * FROM CIM_StorageVolume where SystemName='CLARiiON+%s'"
@@ -130,7 +134,7 @@ def discover_array_SPs(array_serial, ecom_ip, ecom_user="admin",
     return discovered_procs 
 
 def zabbix_safe_output(data):
-  
+    """ Generate JSON output for zabbix from a passed in list of dicts """  
     return json.dumps({"data": data})
 
 def main():

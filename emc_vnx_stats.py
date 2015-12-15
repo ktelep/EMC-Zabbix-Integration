@@ -10,10 +10,12 @@ import StringIO
 import subprocess
 from datetime import datetime, timedelta
 
+# User Configurable Parameters
+# --------------------------------
 ecom_ip="10.5.36.50"
 sender_command = "/usr/local/bin/zabbix_sender"
 config_path = "/etc/zabbix_agentd.conf"
-sample_interval = 5
+sample_interval = 5    # in minutes, must be >= 5
 
 
 def convert_to_local(timestamp):
