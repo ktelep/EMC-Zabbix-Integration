@@ -36,3 +36,13 @@ Currently Supported Objects
     * Cache Flush (Idle, High, Low Watermark)
     * Cache % Dirty
     * Queue Length & Arrivals
+* Physical Disks
+  * Discovery
+  * Performance Metrics
+    * Physical Disk Utilization
+    * IO % Read
+    * Total Read/Write IOs
+    * KB Read/Written/Transferred
+    * Queue Length & Arrivals
+* Volumes
+  * Discovery
