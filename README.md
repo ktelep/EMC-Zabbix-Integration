@@ -46,3 +46,26 @@ Currently Supported Objects
     * Queue Length & Arrivals
 * Volumes
   * Discovery
+  * Performance Metrics
+    * Volume Utilization
+    * Total Read/Write IOs
+    * KB Read/Written/Transferred
+    * Queue Length & Arrivals
+    * Prefetched KB
+    * FAST Cache Hits & Misses
+    * Disk Crossings
+    * Forced Flushes
+
+TODO
+----
+* Physical Disks
+  * Availability (online/offline)
+* Volumes
+  * Capacity/Subscribed
+  * Tresspassed or not
+* Pools & RAID Groups
+  * Discovery
+  * Capacity/Subscribed
+  * Performance Metrics
+
+
