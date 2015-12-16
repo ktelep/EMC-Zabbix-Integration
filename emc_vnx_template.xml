@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2015-12-16T05:04:19Z</date>
+    <date>2015-12-16T20:23:41Z</date>
     <groups>
         <group>
             <name>VNX Storage Array</name>
@@ -486,7 +486,11 @@
                             <port/>
                             <description/>
                             <inventory_link>0</inventory_link>
-                            <applications/>
+                            <applications>
+                                <application>
+                                    <name>Physical Disks</name>
+                                </application>
+                            </applications>
                             <valuemap/>
                             <logtimefmt/>
                         </item_prototype>
@@ -1648,7 +1652,172 @@
                         </item_prototype>
                     </item_prototypes>
                     <trigger_prototypes/>
-                    <graph_prototypes/>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <name>{#SPNAME} - Dirty Page % vs. Writes Flushed</name>
+                            <width>500</width>
+                            <height>200</height>
+                            <yaxismin>0.0000</yaxismin>
+                            <yaxismax>100.0000</yaxismax>
+                            <show_work_period>1</show_work_period>
+                            <show_triggers>1</show_triggers>
+                            <type>0</type>
+                            <show_legend>1</show_legend>
+                            <show_3d>0</show_3d>
+                            <percent_left>0.0000</percent_left>
+                            <percent_right>0.0000</percent_right>
+                            <ymin_type_1>0</ymin_type_1>
+                            <ymax_type_1>0</ymax_type_1>
+                            <ymin_item_1>0</ymin_item_1>
+                            <ymax_item_1>0</ymax_item_1>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>0</sortorder>
+                                    <drawtype>0</drawtype>
+                                    <color>00C800</color>
+                                    <yaxisside>0</yaxisside>
+                                    <calc_fnc>2</calc_fnc>
+                                    <type>0</type>
+                                    <item>
+                                        <host>Template EMC VNX</host>
+                                        <key>emc.vnx.perf.EMCPctDirtyPages[{#SPPERFDEVICEID}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <drawtype>0</drawtype>
+                                    <color>C80000</color>
+                                    <yaxisside>1</yaxisside>
+                                    <calc_fnc>2</calc_fnc>
+                                    <type>0</type>
+                                    <item>
+                                        <host>Template EMC VNX</host>
+                                        <key>emc.vnx.perf.EMCWriteFlushes[{#SPPERFDEVICEID}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>{#SPNAME} - Percent Utilization</name>
+                            <width>500</width>
+                            <height>200</height>
+                            <yaxismin>0.0000</yaxismin>
+                            <yaxismax>100.0000</yaxismax>
+                            <show_work_period>1</show_work_period>
+                            <show_triggers>1</show_triggers>
+                            <type>0</type>
+                            <show_legend>1</show_legend>
+                            <show_3d>0</show_3d>
+                            <percent_left>0.0000</percent_left>
+                            <percent_right>0.0000</percent_right>
+                            <ymin_type_1>0</ymin_type_1>
+                            <ymax_type_1>0</ymax_type_1>
+                            <ymin_item_1>0</ymin_item_1>
+                            <ymax_item_1>0</ymax_item_1>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>0</sortorder>
+                                    <drawtype>0</drawtype>
+                                    <color>0000C8</color>
+                                    <yaxisside>0</yaxisside>
+                                    <calc_fnc>2</calc_fnc>
+                                    <type>0</type>
+                                    <item>
+                                        <host>Template EMC VNX</host>
+                                        <key>emc.vnx.perf.PercentUtilization[{#SPPERFDEVICEID}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>{#SPNAME} - Read/Write IOPs</name>
+                            <width>500</width>
+                            <height>200</height>
+                            <yaxismin>0.0000</yaxismin>
+                            <yaxismax>100.0000</yaxismax>
+                            <show_work_period>1</show_work_period>
+                            <show_triggers>1</show_triggers>
+                            <type>1</type>
+                            <show_legend>1</show_legend>
+                            <show_3d>0</show_3d>
+                            <percent_left>0.0000</percent_left>
+                            <percent_right>0.0000</percent_right>
+                            <ymin_type_1>0</ymin_type_1>
+                            <ymax_type_1>0</ymax_type_1>
+                            <ymin_item_1>0</ymin_item_1>
+                            <ymax_item_1>0</ymax_item_1>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>0</sortorder>
+                                    <drawtype>0</drawtype>
+                                    <color>00C800</color>
+                                    <yaxisside>0</yaxisside>
+                                    <calc_fnc>2</calc_fnc>
+                                    <type>0</type>
+                                    <item>
+                                        <host>Template EMC VNX</host>
+                                        <key>emc.vnx.perf.ReadIOs[{#SPPERFDEVICEID}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <drawtype>0</drawtype>
+                                    <color>C80000</color>
+                                    <yaxisside>0</yaxisside>
+                                    <calc_fnc>2</calc_fnc>
+                                    <type>0</type>
+                                    <item>
+                                        <host>Template EMC VNX</host>
+                                        <key>emc.vnx.perf.WriteIOs[{#SPPERFDEVICEID}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>{#SPNAME} - Read/Write KBps</name>
+                            <width>500</width>
+                            <height>200</height>
+                            <yaxismin>0.0000</yaxismin>
+                            <yaxismax>100.0000</yaxismax>
+                            <show_work_period>1</show_work_period>
+                            <show_triggers>1</show_triggers>
+                            <type>1</type>
+                            <show_legend>1</show_legend>
+                            <show_3d>0</show_3d>
+                            <percent_left>0.0000</percent_left>
+                            <percent_right>0.0000</percent_right>
+                            <ymin_type_1>0</ymin_type_1>
+                            <ymax_type_1>0</ymax_type_1>
+                            <ymin_item_1>0</ymin_item_1>
+                            <ymax_item_1>0</ymax_item_1>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>0</sortorder>
+                                    <drawtype>0</drawtype>
+                                    <color>00DD00</color>
+                                    <yaxisside>0</yaxisside>
+                                    <calc_fnc>2</calc_fnc>
+                                    <type>0</type>
+                                    <item>
+                                        <host>Template EMC VNX</host>
+                                        <key>emc.vnx.perf.KBytesRead[{#SPPERFDEVICEID}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <drawtype>0</drawtype>
+                                    <color>DD0000</color>
+                                    <yaxisside>0</yaxisside>
+                                    <calc_fnc>2</calc_fnc>
+                                    <type>0</type>
+                                    <item>
+                                        <host>Template EMC VNX</host>
+                                        <key>emc.vnx.perf.KBytesWritten[{#SPPERFDEVICEID}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
                     <host_prototypes/>
                 </discovery_rule>
                 <discovery_rule>
@@ -2595,7 +2764,103 @@
             </discovery_rules>
             <macros/>
             <templates/>
-            <screens/>
+            <screens>
+                <screen>
+                    <name>Storage Processors Statistics</name>
+                    <hsize>2</hsize>
+                    <vsize>4</vsize>
+                    <screen_items>
+                        <screen_item>
+                            <resourcetype>20</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>{#SPNAME} - Percent Utilization</name>
+                                <host>Template EMC VNX</host>
+                            </resource>
+                            <max_columns>2</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>20</resourcetype>
+                            <width>550</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>1</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>{#SPNAME} - Read/Write IOPs</name>
+                                <host>Template EMC VNX</host>
+                            </resource>
+                            <max_columns>2</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>20</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>2</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>{#SPNAME} - Read/Write KBps</name>
+                                <host>Template EMC VNX</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>20</resourcetype>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>3</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <style>0</style>
+                            <url/>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <resource>
+                                <name>{#SPNAME} - Dirty Page % vs. Writes Flushed</name>
+                                <host>Template EMC VNX</host>
+                            </resource>
+                            <max_columns>3</max_columns>
+                            <application/>
+                        </screen_item>
+                    </screen_items>
+                </screen>
+            </screens>
         </template>
     </templates>
 </zabbix_export>
