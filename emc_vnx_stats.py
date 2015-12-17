@@ -227,11 +227,62 @@ def disk_stats_query(array_serial, ecom_ip, ecom_user="admin",
     process_stats(header_row, stat_output, array_serial, "Disks", skip_fields)
 
 
+def pool_stats_query(array_serial, ecom_ip, ecom_user="admin",
+                      ecom_pass="#1Password"):
+   
+    ecom_url = "https://%s:5989" % ecom_ip
+    ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
+                                      default_namespace="/root/emc")
+
+    # Lets locate our array
+    array_list = ecom_conn.EnumerateInstanceNames("Clar_StorageSystem")
+    array = None
+
+    for i in array_list:
+        if i["Name"] == "CLARiiON+%s" % array_serial:
+            array = i
+
+    # Walk our pools for stats
+    pool_classes = ["EMC_UnifiedStoragePool","EMC_DeviceStoragePool",
+                    "EMC_VirtualProvisioningPool"]
+
+    processed_stats = ["TotalManagedSpace","RemainingManagedSpace",
+                       "EMCPercentSubscribed","EMCSubscribedCapacity",
+                       "EMCEFDCacheEnabled"]
+  
+    zabbix_data = []
+    timestamp = datetime.now().strftime("%s")
+
+    for pool_class in pool_classes:
+        for i in ecom_conn.Associators(array,ResultClass=pool_class):
+         
+            for stat in processed_stats:    
+                try:
+                    zabbix_key = "emc.vnx.perf.%s[%s]" % (stat,i["InstanceID"].replace(" ","_"))
+                    zabbix_data.append("%s %s %s %s" % (array_serial,zabbix_key,timestamp,i[stat]))
+                except KeyError:
+                    pass
+
+
+    stat_file = "/tmp/pool_data.tmp"
+
+    with open(stat_file, "w") as f:
+         f.write("\n".join(zabbix_data))
+
+    subprocess.call([sender_command, "-v", "-c", config_path,
+                    "-s", array_serial, "-T", "-i", stat_file])
+
+    print "\n".join(zabbix_data)
+    print "\n"
+
+
+ 
 def main():
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "s:dvph",
-                                   ["serial=", 'disks', 'volumes', 'procs', 'help'])
+        opts, args = getopt.getopt(sys.argv[1:], "s:dvpho",
+                                   ["serial=", 'disks', 'volumes', 
+                                    'procs', 'pools', 'help'])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
@@ -248,6 +299,8 @@ def main():
             item = "Volumes"
         elif o in ("-p", "--procs"):
             item = "SPs"
+        elif o in ("-o", "--pools"):
+            item = "Pools"
 
     if not array_serial:
         print "No serial provided"
@@ -264,6 +317,9 @@ def main():
         sys.exit()
     elif item == "SPs":
         sp_stats_query(array_serial, ecom_ip)
+        sys.exit()
+    elif item == "Pools":
+        pool_stats_query(array_serial,ecom_ip)
         sys.exit()
 
 
