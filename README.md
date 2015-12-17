@@ -13,6 +13,8 @@ Installation
 2.  pyWBEM python module installed on the Zabbix Server 
 
 
+A script in the tools subdir can be used to easily add the array to the ECOM server if you are unfamiliar with the ECOM tools
+
 *Installation*
 
 1.  Place the two python scripts included here in the external scripts directory for your zabbix server, be sure they are owned by, and executable by the zabbix user.
