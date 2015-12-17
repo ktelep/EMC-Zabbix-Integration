@@ -55,6 +55,9 @@ Currently Supported Objects
     * FAST Cache Hits & Misses
     * Disk Crossings
     * Forced Flushes
+* Pools & RAID Groups
+  * Discovery
+  * Capacity/Subscribed
 
 TODO
 ----
@@ -64,8 +67,6 @@ TODO
   * Capacity/Subscribed
   * Tresspassed or not
 * Pools & RAID Groups
-  * Discovery
-  * Capacity/Subscribed
   * Performance Metrics
 
 
