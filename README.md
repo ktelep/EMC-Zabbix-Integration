@@ -3,9 +3,13 @@ EMC-Zabbix-Integration
 
 This template and supporting scripts have been developed to integrate EMC VNX storage into the Open-Source Monitoring Tool Zabbix (http://www.zabbix.com)
 
+## Description
+This project aims to provide a simple to implement integration for the collection of performance and health data from EMC VNX and CLARiiON based systems into the Zabbix Open-Source monitoring framework. 
 
-Installation
-------------
+This integration is expected to flex many of Zabbix's features including Low Level Discovery, application based separation, and visualization.
+
+
+## Installation
 
 *Prerequisites*
 
@@ -26,8 +30,7 @@ A script in the tools subdir can be used to easily add the array to the ECOM ser
 7.  Patiently wait for the discovery and first sync to run
 
 
-Currently Supported Objects
----------------------------
+## Currently Supported Objects
 * Storage Processors
   * Discovery
   * Up/Down validation
@@ -61,8 +64,7 @@ Currently Supported Objects
   * Discovery
   * Capacity/Subscribed
 
-TODO
-----
+## Future
 * Physical Disks
   * Availability (online/offline)
 * Volumes
@@ -71,4 +73,12 @@ TODO
 * Pools & RAID Groups
   * Performance Metrics
 
+Licensing
+---------
+Licensed under the Apache License, Version 2.0 (the License); you may not use this file except in compliance with the License. You may obtain a copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>
 
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an AS IS BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+Support
+-------
+Please file bugs and issues at the Github issues page.
