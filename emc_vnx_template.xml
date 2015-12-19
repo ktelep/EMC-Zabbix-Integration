@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2015-12-17T04:57:50Z</date>
+    <date>2015-12-19T20:42:05Z</date>
     <groups>
         <group>
             <name>VNX Storage Array</name>
@@ -211,7 +211,7 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>emc_vnx_discovery.py[&quot;--serial={HOST.HOST}&quot;,&quot;--disks&quot;]</key>
+                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--disks&quot;]</key>
                     <delay>60</delay>
                     <status>0</status>
                     <allowed_hosts/>
@@ -853,7 +853,7 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>emc_vnx_discovery.py[&quot;--serial={HOST.HOST}&quot;,&quot;--pools&quot;]</key>
+                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--pools&quot;]</key>
                     <delay>60</delay>
                     <status>0</status>
                     <allowed_hosts/>
@@ -1206,7 +1206,7 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>emc_vnx_discovery.py[&quot;--serial={HOST.HOST}&quot;,&quot;--procs&quot;]</key>
+                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--procs&quot;]</key>
                     <delay>60</delay>
                     <status>0</status>
                     <allowed_hosts/>
@@ -2269,7 +2269,7 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>emc_vnx_discovery.py[&quot;--serial={HOST.HOST}&quot;,&quot;--volumes&quot;]</key>
+                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--volumes&quot;]</key>
                     <delay>60</delay>
                     <status>0</status>
                     <allowed_hosts/>
