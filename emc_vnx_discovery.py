@@ -2,9 +2,8 @@
 
 import sys
 import json
-import getopt
 import pywbem
-
+import argparse
 
 # User Configurable Parameters
 # --------------------------------
@@ -15,10 +14,18 @@ ecom_pass = "#1Password"
 # Global Queries
 # --------------------------------
 ecom_queries = dict()
-ecom_queries["physical_disk"] = "SELECT * FROM CIM_DiskDrive where SystemName='CLARiiON+%s'"
-ecom_queries["volume"] = "SELECT * FROM CIM_StorageVolume where SystemName='CLARiiON+%s'"
 ecom_queries["storage_proc"] = "SELECT * FROM CIM_RemoteServiceAccessPoint where SystemName LIKE 'CLARiiON+%s'"
 
+def get_array_instancename(array_serial, ecom_conn):
+    """ Returns the InstanceName of the array serial provided """
+
+    registered_arrays = ecom_conn.EnumerateInstanceNames("Clar_StorageSystem")
+    for array in registered_arrays:
+        if array_serial in array['Name']:
+            return array
+
+    # No array found
+    return None
 
 def discover_array_volumes(array_serial, ecom_ip, ecom_user="admin",
                            ecom_pass="#1Password"):
@@ -39,8 +46,10 @@ def discover_array_volumes(array_serial, ecom_ip, ecom_user="admin",
     ecom_conn = pywbem.WBEMConnection(ecom_url, (ecom_user, ecom_pass),
                                       default_namespace="/root/emc")
 
-    volumes = ecom_conn.ExecQuery("DMTF:CQL",
-                                  ecom_queries["volume"] % array_serial)
+    array = get_array_instancename(array_serial,ecom_conn)
+
+    # Locate all volumes associated with the array
+    volumes = ecom_conn.Associators(array,ResultClass="CIM_StorageVolume")
 
     discovered_volumes = []
     for volume in volumes:
@@ -75,8 +84,9 @@ def discover_array_disks(array_serial, ecom_ip, ecom_user="admin",
     ecom_conn = pywbem.WBEMConnection(ecom_url, (ecom_user, ecom_pass),
                                       default_namespace="/root/emc")
 
-    physical_disks = ecom_conn.ExecQuery("DMTF:CQL",
-                                         ecom_queries["physical_disk"] % array_serial)
+    array = get_array_instancename(array_serial, ecom_conn)
+
+    physical_disks = ecom_conn.Associators(array,ResultClass="CIM_DiskDrive")
 
     discovered_disks = []
     for disk in physical_disks:
@@ -118,8 +128,13 @@ def discover_array_SPs(array_serial, ecom_ip, ecom_user="admin",
     ecom_conn = pywbem.WBEMConnection(ecom_url, (ecom_user, ecom_pass),
                                       default_namespace="/root/emc")
 
-    storage_procs = ecom_conn.ExecQuery("DMTF:CQL",
-                                        ecom_queries["storage_proc"] % array_serial)
+    array = get_array_instancename(array_serial, ecom_conn)
+    sps = ecom_conn.AssociatorNames(array,ResultClass="EMC_StorageProcessorSystem")
+  
+    storage_procs = []
+    for sp in sps:
+        i = ecom_conn.Associators(sp,ResultClass="CIM_RemoteServiceAccessPoint")
+        storage_procs.append(i[0])
 
     discovered_procs = []
     for proc in storage_procs:
@@ -158,11 +173,7 @@ def discover_array_pools(array_serial, ecom_ip, ecom_user="admin",
                                       default_namespace="/root/emc")
 
     # Lets locate our array
-    array_list = ecom_conn.EnumerateInstanceNames("Clar_StorageSystem")
-    array = None
-    for i in array_list:
-        if i["Name"] == "CLARiiON+%s" % array_serial:
-            array = i
+    array = get_array_instancename(array_serial,ecom_conn)
 
     pool_classes = ["EMC_DeviceStoragePool","EMC_UnifiedStoragePool",
                     "EMC_VirtualProvisioningPool"]
@@ -196,54 +207,51 @@ def zabbix_safe_output(data):
 
 def main():
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "s:dvpho",
-                                   ["serial=", 'disks', 'volumes', 'procs', 
-                                    'help','pools'])
+    parser = argparse.ArgumentParser()
 
-    except getopt.GetoptError as err:
-        print(err)
-        sys.exit(2)
+    parser.add_argument('--serial','-s', action="store",
+                        help="Array Serial Number", required=True)
+    parser.add_argument('--ecom_ip', '-i', action="store",
+                        help="IP Address of ECOM server", required=True)
 
-    array_serial = None
-    item = None
+    parser.add_argument('--ecom_user', action="store", 
+                        help="ECOM Username", default="admin")
+    parser.add_argument('--ecom_pass', action="store", 
+                        help="ECOM Password", default="#1Password")
 
-    for o, a in opts:
-        if o in ("-s", "--serial"):
-            array_serial = a
-        elif o in ("-d", "--disks"):
-            item = "Disks"
-        elif o in ("-d", "--volumes"):
-            item = "Volumes"
-        elif o in ("-p", "--procs"):
-            item = "SPs"
-        elif o in ("-o", "--pools"):
-            item = "Pools"
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--disks', '-d', action="store_true", 
+                        help="Discover Physical Disks")
+    group.add_argument('--volumes', '-v', action="store_true", 
+                        help="Discover Volumes/LUNs")
+    group.add_argument('--procs', '-p', action="store_true", 
+                        help="Discover Storage Processors")
+    group.add_argument('--pools', '-o', action="store_true", 
+                        help="Discover Physical Disks")
+    group.add_argument('--array', '-a', action="store_true", 
+                        help="Discover Array devices and enclosures")
 
-    if not array_serial:
-        print "No serial provided"
-        sys.exit(2)
-    elif not item:
-        print "No item specified for discover"
-        sys.exit(2)
 
-    if item == "Disks":
-        print zabbix_safe_output(discover_array_disks(array_serial, ecom_ip,
-                                                      ecom_user, ecom_pass))
-        sys.exit()
-    elif item == "Volumes":
-        print zabbix_safe_output(discover_array_volumes(array_serial, ecom_ip,
-                                                        ecom_user, ecom_pass))
-        sys.exit()
-    elif item == "SPs":
-        print zabbix_safe_output(discover_array_SPs(array_serial, ecom_ip,
-                                                    ecom_user, ecom_pass))
-        sys.exit()
-    elif item == "Pools":
-        print zabbix_safe_output(discover_array_pools(array_serial, ecom_ip,
-                                                      ecom_user, ecom_pass))
-        sys.exit()
+    args = parser.parse_args()
 
+    result = None
+    if args.disks:
+        result = discover_array_disks(args.serial, args.ecom_ip, 
+                                      args.ecom_user, args.ecom_pass)
+    elif args.volumes:
+        result = discover_array_volumes(args.serial, args.ecom_ip, 
+                                        args.ecom_user, args.ecom_pass)
+    elif args.procs: 
+        result = discover_array_SPs(args.serial, args.ecom_ip, 
+                                    args.ecom_user, args.ecom_pass)
+    elif args.pools:
+        result = discover_array_pools(args.serial, args.ecom_ip, 
+                                      args.ecom_user, args.ecom_pass)
+    elif args.array:
+         pass
+
+    
+    print zabbix_safe_output(result)
 
 if __name__ == "__main__":
     main()
