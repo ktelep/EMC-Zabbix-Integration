@@ -23,9 +23,9 @@ A script in the tools subdir can be used to easily add the array to the ECOM ser
 
 1.  Place the two python scripts included here in the external scripts directory for your zabbix server, be sure they are owned by, and executable by the zabbix user.
 2.  Confirm that the script Timeout value is set to at least 10 seconds in the zabbix_server.conf file.
-3.  Update both scripts to set the IP address of the ECOM server and any other specific environment parameters
-4.  Create a new host in Zabbix, with a hostname of the ARRAY SERIAL, the visible hostname may be whatever you like
-5.  Update the Host inventory to include the array serial number
+4.  Create a new host in Zabbix, with a hostname of the ARRAY SERIAL, the visible hostname may be whatever you like.
+5.  Create a host macro {$ECOMIP} with a value of the IP address of the ECOM server.
+5.  Update the Host inventory, setting it to manual to include the array serial number
 6.  Import the template and link to the newly added host
 7.  Patiently wait for the discovery and first sync to run
 
