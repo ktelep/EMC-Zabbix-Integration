@@ -8,11 +8,11 @@ import pywbem
 import datetime
 import StringIO
 import subprocess
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 # User Configurable Parameters
 # --------------------------------
-ecom_ip = "10.5.36.50"
 sender_command = "/usr/local/bin/zabbix_sender"
 config_path = "/etc/zabbix_agentd.conf"
 sample_interval = 5    # in minutes, must be >= 5
@@ -346,7 +346,171 @@ def hardware_healthcheck(array_serial, ecom_ip, ecom_user="admin",
     print "\n".join(zabbix_data)
     print "\n"
 
+
+def get_pool_io_stats(ecom_conn,array,disk_id_list,vol_id_list):
     
+    # We are using these as a cache for block stats
+    cim_stats = None
+    disk_sequence = None
+    vol_sequence = None
+    
+    pregather = datetime.now()
+    # Determine the order that the stats are provided, this is the CSVSequence
+    # from the block manifest
+    
+    if not disk_sequence:
+        manifest = ecom_conn.EnumerateInstanceNames("Clar_BlockManifest")
+    
+
+        for i in manifest:
+            if "Disk" in i["InstanceID"]:
+                inst = ecom_conn.GetInstance(i)
+                disk_sequence = inst["CSVSequence"]
+            if "Volume" in i["InstanceID"]:
+                inst = ecom_conn.GetInstance(i)
+                vol_sequence = inst["CSVSequence"]
+    
+    if not cim_stats:
+        # Grab our block stats service for the array
+        block_stats = ecom_conn.AssociatorNames(array,ResultClass="Clar_BlockStatisticsService")[0]
+    
+        # Pull statistics, Elementtypes 8 and 10 (Volumes and Disks)
+        cim_stats = ecom_conn.InvokeMethod("GetStatisticsCollection",block_stats,
+                                   StatisticsFormat = pywbem.Uint16(2),
+                                   ElementTypes = [pywbem.Uint16(8),pywbem.Uint16(10)])
+
+    
+    disk_stat = StringIO.StringIO(cim_stats[1]["Statistics"][0]) # Disk stats
+    vol_stat = StringIO.StringIO(cim_stats[1]["Statistics"][1]) # Vol Stats
+        
+    # The parameters we care about    
+    pool_stats = ["TotalIOs","KBytesTransferred","ReadIOs","KBytesRead","WriteIOs","KBytesWritten"]
+    
+    disk_index_info = {}
+    vol_index_info = {}
+    totals_disk = {}
+    totals_vol = {}
+    
+    timestamp = None
+    
+    for i in pool_stats:
+        disk_index_info[disk_sequence.index(i)] = i
+        vol_index_info[vol_sequence.index(i)] = i
+        totals_disk[disk_sequence.index(i)] = 0
+        totals_vol[vol_sequence.index(i)] = 0
+    
+    
+    # Disk Stats
+    reader = csv.reader(disk_stat, delimiter=';')
+    for row in reader:
+        if row[0] in disk_id_list:
+            for j in disk_index_info.keys():
+                totals_disk[j] = totals_disk[j] + int(row[j])
+            timestamp = row[2]
+           
+    # Volume Stats
+    reader = csv.reader(vol_stat, delimiter=';')
+    for row in reader:
+        if row[0] in vol_id_list:
+            for j in vol_index_info:
+                totals_vol[j] = totals_vol[j] + int(row[j])
+            timestamp = row[2]  
+           
+    # Build the resultset
+    results = defaultdict(dict)
+    for i in disk_index_info.keys():
+        results["disks"][disk_index_info[i]] = totals_disk[i]
+    for i in vol_index_info.keys():
+        results["volumes"][vol_index_info[i]] = totals_vol[i]
+    results["timestamp"] = convert_to_local(timestamp).strftime("%s")
+    
+    return results
+
+def pool_performance(req_pool, array_serial, ecom_ip,  
+                     ecom_user="admin", ecom_pass="#1Password"):
+
+    array_pool = req_pool.replace("_"," ")
+
+    ecom_url = "https://%s:5989" % ecom_ip
+    ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
+                                      default_namespace="/root/emc")
+
+    # Lets locate our array
+    array_list = ecom_conn.EnumerateInstanceNames("Clar_StorageSystem")
+    array = None
+
+    for i in array_list:
+        if i["Name"] == "CLARiiON+%s" % array_serial:
+            array = i
+   
+    pools = ecom_conn.AssociatorNames(array,ResultClass="EMC_StoragePool")
+
+    zabbix_data = []
+    for pool in pools:
+        if array_pool in pool["InstanceID"]:
+
+            pool_disks = ecom_conn.Associators(pool,
+                                           AssocClass="CIM_ConcreteDependency",
+                                           ResultClass="CIM_DiskDrive")
+            pool_volumes = ecom_conn.Associators(pool,
+                                           ResultClass="CIM_StorageVolume")
+
+            disk_list = []
+            for i in pool_disks:
+                perf_dev_id = "CLAR+%s+Disk+%s" % (array_serial,i["Name"])
+                disk_list.append(perf_dev_id)
+    
+            vol_list = []
+            for i in pool_volumes:
+                vol_list.append(i["EMCBSPInstanceID"])
+        
+        
+            stats = get_pool_io_stats(ecom_conn,array,disk_list,vol_list)    
+            
+            timestamp = stats["timestamp"]
+            for i in stats["disks"].keys():
+                zabbix_key = "emc.vnx.perf.PoolDisk%s[%s]" % (i,req_pool)
+                zabbix_data.append("%s %s %s %s" % (array_serial, zabbix_key, timestamp,
+                                       str(stats["disks"][i])))
+
+            for i in stats["volumes"].keys():
+                zabbix_key = "emc.vnx.perf.PoolVol%s[%s]" % (i,req_pool)
+                zabbix_data.append("%s %s %s %s" % (array_serial, zabbix_key, timestamp,
+                                       str(stats["volumes"][i])))
+    
+    print "------------------------------------------------------"
+    print "Current Time: %s    Stat Time: %s" % (datetime.now().strftime("%c"),
+                                                 datetime.fromtimestamp(int(timestamp)).strftime("%c"))
+
+    # Check if we've already collected and sent this dataset
+    last_stat = None
+
+    last_file = "/tmp/poolperf_%s_last.tmp" % req_pool
+    stat_file = "/tmp/poolperf_%s_data.tmp" % req_pool
+
+    if os.path.isfile(last_file):
+        with open(last_file) as f:
+            last_stat = f.readline()
+
+    if timestamp != last_stat:
+        with open(stat_file, "w") as f:
+            f.write("\n".join(zabbix_data))
+
+        subprocess.call([sender_command, "-v", "-c", config_path,
+                         "-s", array_serial, "-T", "-i", stat_file])
+
+        print "\n".join(zabbix_data)
+        print "\n"
+
+        with open(last_file, "w") as f:
+            f.write(timestamp)
+
+    else:
+        print "Already posted stats to Zabbix, skipping"
+
+    print "------------------------------------------------------\n"
+
+
  
 def main():
 
@@ -373,7 +537,8 @@ def main():
                         help="Collect Stats on Physical Disks")
     group.add_argument('--array', '-a', action="store_true",
                         help="Collect Stats on Array devices and enclosures")
-
+    group.add_argument('--poolperf','-r', action="store",
+                        help="Collect individual perf stats on a pool")
 
     args = parser.parse_args()
 
@@ -399,6 +564,9 @@ def main():
     elif args.array:
         hardware_healthcheck(args.serial, args.ecom_ip,
                              args.ecom_user, args.ecom_pass)
+    elif args.poolperf:
+        pool_performance(args.poolperf, args.serial, args.ecom_ip,      
+                         args.ecom_user, args.ecom_pass)
         sys.exit()
 
 
