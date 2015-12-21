@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2015-12-19T20:42:05Z</date>
+    <date>2015-12-21T01:37:43Z</date>
     <groups>
         <group>
             <name>VNX Storage Array</name>
@@ -19,6 +19,9 @@
             </groups>
             <applications>
                 <application>
+                    <name>Hardware</name>
+                </application>
+                <application>
                     <name>Physical Disks</name>
                 </application>
                 <application>
@@ -33,12 +36,55 @@
             </applications>
             <items>
                 <item>
+                    <name>Array Health Stats Collection</name>
+                    <type>10</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--array&quot;]</key>
+                    <delay>60</delay>
+                    <history>2</history>
+                    <trends>365</trends>
+                    <status>0</status>
+                    <value_type>4</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Hardware</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
                     <name>Physical Disk Stats Collection</name>
                     <type>10</type>
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--disks&quot;]</key>
+                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--disks&quot;]</key>
                     <delay>60</delay>
                     <history>2</history>
                     <trends>365</trends>
@@ -81,7 +127,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--pools&quot;]</key>
+                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--pools&quot;]</key>
                     <delay>60</delay>
                     <history>2</history>
                     <trends>365</trends>
@@ -124,7 +170,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--procs&quot;]</key>
+                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--procs&quot;]</key>
                     <delay>60</delay>
                     <history>2</history>
                     <trends>365</trends>
@@ -167,7 +213,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--volumes&quot;]</key>
+                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--volumes&quot;]</key>
                     <delay>60</delay>
                     <history>2</history>
                     <trends>365</trends>
@@ -206,6 +252,87 @@
                 </item>
             </items>
             <discovery_rules>
+                <discovery_rule>
+                    <name>VNX Array Hardware</name>
+                    <type>10</type>
+                    <snmp_community/>
+                    <snmp_oid/>
+                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--array&quot;]</key>
+                    <delay>30</delay>
+                    <status>0</status>
+                    <allowed_hosts/>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <delay_flex/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <filter>
+                        <evaltype>0</evaltype>
+                        <formula/>
+                        <conditions/>
+                    </filter>
+                    <lifetime>30</lifetime>
+                    <description/>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>{#DEVICENAME}</name>
+                            <type>2</type>
+                            <snmp_community/>
+                            <multiplier>0</multiplier>
+                            <snmp_oid/>
+                            <key>emc.vnx.health.Status[{#DEVICEID}]</key>
+                            <delay>0</delay>
+                            <history>90</history>
+                            <trends>365</trends>
+                            <status>0</status>
+                            <value_type>4</value_type>
+                            <allowed_hosts/>
+                            <units/>
+                            <delta>0</delta>
+                            <snmpv3_contextname/>
+                            <snmpv3_securityname/>
+                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                            <snmpv3_authpassphrase/>
+                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                            <snmpv3_privpassphrase/>
+                            <formula>1</formula>
+                            <delay_flex/>
+                            <params/>
+                            <ipmi_sensor/>
+                            <data_type>0</data_type>
+                            <authtype>0</authtype>
+                            <username/>
+                            <password/>
+                            <publickey/>
+                            <privatekey/>
+                            <port/>
+                            <description/>
+                            <inventory_link>0</inventory_link>
+                            <applications>
+                                <application>
+                                    <name>Hardware</name>
+                                </application>
+                            </applications>
+                            <valuemap/>
+                            <logtimefmt/>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes/>
+                    <graph_prototypes/>
+                    <host_prototypes/>
+                </discovery_rule>
                 <discovery_rule>
                     <name>VNX Physical Disks</name>
                     <type>10</type>
@@ -1314,7 +1441,7 @@
                             <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
-                                    <name>Storage Processors</name>
+                                    <name>Hardware</name>
                                 </application>
                             </applications>
                             <valuemap/>

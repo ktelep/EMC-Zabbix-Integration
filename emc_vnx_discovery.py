@@ -91,10 +91,9 @@ def discover_array_disks(array_serial, ecom_ip, ecom_user="admin",
     discovered_disks = []
     for disk in physical_disks:
 
-        dev_id = disk["DeviceID"]
-        perf_dev_id = dev_id.replace(
-            "CLARiiON+", "CLAR+%s+Disk+" % array_serial)
-        bus_enc = dev_id.replace("CLARiiON+", "").split('_')
+        dev_id = "CLAR+%s+%s" % (array_serial, disk["Name"])
+        perf_dev_id = "CLAR+%s+Disk+%s" % (array_serial, disk["Name"])
+        bus_enc = disk["Name"].split('_')
         dev_name = "Bus %s Enclosure %s Slot %s" % (
             bus_enc[0], bus_enc[1], bus_enc[2])
 
@@ -198,11 +197,156 @@ def discover_array_pools(array_serial, ecom_ip, ecom_user="admin",
     return discovered_pools
 
 
+def discover_array_devices(array_serial, ecom_ip, ecom_user="admin",
+                           ecom_pass="#1Password"):
+    """Discover the enclosures, batteries, etc. in the array
 
+       Arguments-
+           array_serial:  (string) Serial number of array to discover
+           ecom_ip:       (string) IP Address of SMI-S/ECOM Server
+           ecom_user:     (string) Username for ECOM auth, default is "admin"
+           ecom_pass:     (string) Password for ECOM auth, default is "$1Password"
+
+       Returns-
+           Zabbix compatible List of Hashes to be JSONified or appended to additional data
+
+    """
+    ecom_url = "https://%s:5989" % ecom_ip
+    ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
+                                      default_namespace="/root/emc")
+
+    array_hardware = []
+    # Lets locate our array
+    array = get_array_instancename(array_serial,ecom_conn)
+
+    # Enclosures are associated with the ArrayChassis of the Storage System
+    array_chassis = ecom_conn.AssociatorNames(array,
+                                              ResultClass="EMC_ArrayChassis")[0]
+    enclosures = ecom_conn.Associators(array_chassis,
+                                  ResultClass="EMC_EnclosureChassis")
+
+    for i in enclosures:
+        if "SPE" in i["ElementName"]:
+            enclosure_name = "Storage Processor Enclosure"
+        else:
+            enclosure_name = "Bus %s Enclosure %s" % tuple(i["ElementName"].split('_'))
+
+        array_hardware.append({"{#ARRAYSERIAL}": array_serial,
+                               "{#DEVICEID}": i["Tag"],
+                               "{#DEVICENAME}": enclosure_name,
+                               "{#DEVICETYPE}": "Enclosure"
+                              })
+
+    # Power Supplies
+    pow_supplies = ecom_conn.Associators(array,ResultClass="EMC_PowerDevice")
+    
+    for i in pow_supplies:
+        location = i["DeviceID"].split('+')
+        device = location[2]
+        supply_side = location[-1]
+
+        if 'SPE' in device:
+           device = "SPE Power Supply "   # Strip out the N/As
+        else:
+           device = "Bus %s Enclosure %s Power Supply " % tuple(device.split('_'))
+
+        device = device + supply_side
+
+        array_hardware.append({"{#ARRAYSERIAL}":array_serial,
+                               "{#DEVICEID}": i["DeviceID"],
+                               "{#DEVICENAME}": device,
+                               "{#DEVICETYPE}": "Supply"
+                              })
+
+    # Batteries
+    batteries = ecom_conn.Associators(array,ResultClass="EMC_BatteryDevice")
+
+    for i in batteries: 
+        location = i["DeviceID"].split('+')
+        device = location[2]
+        battery_side = location[-1]
+
+        if "SPE" in device:
+           device = "Storage Processor Enclosure Battery "
+        else:
+           device = "Bus %s Enclosure %s Battery " % tuple(device.split('_'))
+ 
+        device = device + battery_side
+
+        array_hardware.append({"{ARRAYSERIAL}":array_serial,
+                               "{#DEVICEID}": i["DeviceID"],
+                               "{#DEVICENAME}": device,
+                               "{#DEVICETYPE}": "Battery"
+                              })
+
+    # LCC Cards
+    lcc_cards = ecom_conn.Associators(array,ResultClass = "EMC_LinkControlDevice")
+
+    for i in lcc_cards:
+        location = i["DeviceID"].split('+')
+        device = location[2]
+        side = location[-1]
+
+        device = "Bus %s Enclosure %s LCC Card " % tuple(device.split('_'))
+
+        device = device + side
+     
+        array_hardware.append({"{ARRAYSERIAL}":array_serial,
+                               "{#DEVICEID}": i["DeviceID"],
+                               "{#DEVICENAME}": device,
+                               "{#DEVICETYPE}": "LCC"
+                              })
+    
+    # Fans (Fun fact, NOT all arrays have monitored fans in them!) 
+    # If no FAN data is reported, physically check your array...
+    fans = ecom_conn.Associators(array,ResultClass="EMC_FanDevice") 
+    for i in fans:
+        location = i["DeviceID"].split('+')
+        device = location[2]
+        side = location[-1]
+
+        device = "Bus %s Enclosure %s Fan " % tuple(device.split('_'))
+
+        device = device + side
+     
+        array_hardware.append({"{ARRAYSERIAL}":array_serial,
+                               "{#DEVICEID}": i["DeviceID"]+"+Fan",
+                               "{#DEVICENAME}": device,
+                               "{#DEVICETYPE}": "Fan"
+                              })
+    
+
+    # Storage Processors
+    sps = ecom_conn.Associators(array,ResultClass="EMC_StorageProcessorSystem")
+    for i in sps:
+        device = "Storage Processor %s" % (i["Name"].split('_')[-1])
+        array_hardware.append({"{#ARRAYSERIAL}":array_serial,
+                               "{#DEVICEID}": i["Name"],
+                               "{#DEVICENAME}": device,
+                               "{#DEVICETYPE}": "SP"
+                              })
+
+    disks = ecom_conn.Associators(array,ResultClass="CIM_DiskDrive")
+    for i in disks:
+
+        dev_id = "CLARiiON+%s+%s" % (array_serial, i["Name"])
+        bus_enc = i["Name"].split('_')
+        dev_name = "Disk at Bus %s Enclosure %s Slot %s" % (
+            bus_enc[0], bus_enc[1], bus_enc[2])
+
+        array_hardware.append({"{#ARRAYSERIAL}": array_serial,
+                               "{#DEVICEID}": dev_id,
+                               "{#DEVICENAME}": dev_name,
+                               "{#DEVICETYPE}": "Disk"
+                              })
+ 
+    return array_hardware
+
+                               
 
 def zabbix_safe_output(data):
     """ Generate JSON output for zabbix from a passed in list of dicts """
-    return json.dumps({"data": data})
+    return json.dumps({"data": data}, indent=4, separators=(',', ': '))
 
 
 def main():
@@ -248,7 +392,8 @@ def main():
         result = discover_array_pools(args.serial, args.ecom_ip, 
                                       args.ecom_user, args.ecom_pass)
     elif args.array:
-         pass
+        result = discover_array_devices(args.serial, args.ecom_ip, 
+                                         args.ecom_user, args.ecom_pass)
 
     
     print zabbix_safe_output(result)

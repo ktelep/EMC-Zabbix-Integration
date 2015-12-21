@@ -3,7 +3,7 @@
 import os
 import csv
 import sys
-import getopt
+import argparse
 import pywbem
 import datetime
 import StringIO
@@ -276,50 +276,129 @@ def pool_stats_query(array_serial, ecom_ip, ecom_user="admin",
     print "\n"
 
 
+def hardware_healthcheck(array_serial, ecom_ip, ecom_user="admin",
+                         ecom_pass="#1Password"):
+
+    ecom_url = "https://%s:5989" % ecom_ip
+    ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
+                                      default_namespace="/root/emc")
+
+    # Generate our timestamp 
+    timestamp = datetime.now().strftime("%s")
+    zabbix_data = []
+
+    # Lets locate our array
+    array_list = ecom_conn.EnumerateInstanceNames("Clar_StorageSystem")
+    array = None
+
+    for i in array_list:
+        if i["Name"] == "CLARiiON+%s" % array_serial:
+            array = i
+
+    # Devices we're just locating status on
+    health_classes = ["EMC_LinkControlDevice","EMC_PowerDevice",
+                      "EMC_BatteryDevice","EMC_StorageProcessorSystem",
+                      "EMC_DiskDrive"]
+
+    for device in health_classes:
+        dev_instance = ecom_conn.Associators(array,ResultClass = device)
+        for inst in dev_instance:
+            status = " ".join(inst["StatusDescriptions"])
+            if "DiskDrive" in device:
+                device_id = inst["SystemName"] + "+" + inst["Name"]
+            elif "StorageProcessor" in device:
+                device_id = inst["EMCBSPInstanceID"]
+            else:
+                device_id = inst["DeviceID"]
+
+            zabbix_key = "emc.vnx.health.Status[%s]" % device_id
+            zabbix_data.append("%s %s %s %s" % (array_serial, zabbix_key,
+                                                timestamp, status))
+
+    # For enclosures we need to locate the ArrayChassis
+    chassis_list = ecom_conn.EnumerateInstanceNames("EMC_ArrayChassis")    
+    array_chassis = None
+
+    for i in chassis_list:
+        if array_serial in i["Tag"]:
+            array_chassis = i
+
+    # Now we can locate enclosures
+    enclosures = ecom_conn.Associators(array_chassis,
+                                       ResultClass="EMC_EnclosureChassis")
+
+    for inst in enclosures:
+        status = " ".join(inst["StatusDescriptions"])
+        device_id = inst["Tag"]
+        zabbix_key = "emc.vnx.health.Status[%s]" % device_id
+        zabbix_data.append("%s %s %s %s" % (array_serial, zabbix_key,
+                                            timestamp, status))
+
+
+    stat_file = "/tmp/health_data.tmp"
+
+    with open(stat_file, "w") as f:
+         f.write("\n".join(zabbix_data))
+
+    subprocess.call([sender_command, "-v", "-c", config_path,
+                    "-s", array_serial, "-T", "-i", stat_file])
+
+    print "\n".join(zabbix_data)
+    print "\n"
+
+    
  
 def main():
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "s:dvpho",
-                                   ["serial=", 'disks', 'volumes', 
-                                    'procs', 'pools', 'help'])
-    except getopt.GetoptError as err:
-        print(err)
-        sys.exit(2)
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--serial','-s', action="store",
+                        help="Array Serial Number", required=True)
+    parser.add_argument('--ecom_ip', '-i', action="store",
+                        help="IP Address of ECOM server", required=True)
+
+    parser.add_argument('--ecom_user', action="store",
+                        help="ECOM Username", default="admin")
+    parser.add_argument('--ecom_pass', action="store",
+                        help="ECOM Password", default="#1Password")
+
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--disks', '-d', action="store_true",
+                        help="Collect Stats on Physical Disks")
+    group.add_argument('--volumes', '-v', action="store_true",
+                        help="Collect Stats on Volumes/LUNs")
+    group.add_argument('--procs', '-p', action="store_true",
+                        help="Collect Stats on Storage Processors")
+    group.add_argument('--pools', '-o', action="store_true",
+                        help="Collect Stats on Physical Disks")
+    group.add_argument('--array', '-a', action="store_true",
+                        help="Collect Stats on Array devices and enclosures")
+
+
+    args = parser.parse_args()
 
     array_serial = None
     item = None
 
-    for o, a in opts:
-        if o in ("-s", "--serial"):
-            array_serial = a
-        elif o in ("-d", "--disks"):
-            item = "Disks"
-        elif o in ("-d", "--volumes"):
-            item = "Volumes"
-        elif o in ("-p", "--procs"):
-            item = "SPs"
-        elif o in ("-o", "--pools"):
-            item = "Pools"
-
-    if not array_serial:
-        print "No serial provided"
-        sys.exit(2)
-    elif not item:
-        print "No item specified for stats collection"
-        sys.exit(2)
-
-    if item == "Disks":
-        disk_stats_query(array_serial, ecom_ip)
+    if args.disks:
+        disk_stats_query(args.serial, args.ecom_ip, 
+                         args.ecom_user, args.ecom_pass)
         sys.exit()
-    elif item == "Volumes":
-        volume_stats_query(array_serial, ecom_ip)
+    elif args.volumes:
+        volume_stats_query(args.serial, args.ecom_ip,
+                           args.ecom_user, args.ecom_pass)
         sys.exit()
-    elif item == "SPs":
-        sp_stats_query(array_serial, ecom_ip)
+    elif args.procs:
+        sp_stats_query(args.serial, args.ecom_ip,
+                       args.ecom_user, args.ecom_pass)
         sys.exit()
-    elif item == "Pools":
-        pool_stats_query(array_serial,ecom_ip)
+    elif args.pools:
+        pool_stats_query(args.serial, args.ecom_ip,
+                         args.ecom_user, args.ecom_pass)
+        sys.exit()
+    elif args.array:
+        hardware_healthcheck(args.serial, args.ecom_ip,
+                             args.ecom_user, args.ecom_pass)
         sys.exit()
 
 
