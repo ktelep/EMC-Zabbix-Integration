@@ -20,15 +20,9 @@ sample_interval = 5    # in minutes, must be >= 5
 # Globals
 # --------------------------------
 stat_manifest_info = dict()
-stat_manifest_info["SP"] = {"InstanceID": "CLARiiON+%s"
-                                          "+EMC_MANIFEST_DEFAULT+FEAdapt",
-                            "ManifestID": 2}
-stat_manifest_info["Volumes"] = {"InstanceID": "CLARiiON+%s"
-                                               "+EMC_MANIFEST_DEFAULT+Volume",
-                                 "ManifestID": 5}
-stat_manifest_info["Disks"] = {"InstanceID": "CLARiiON+%s"
-                                             "+EMC_MANIFEST_DEFAULT+Disk",
-                               "ManifestID": 1}
+stat_manifest_info["SP"] = {"InstanceID": "FEAdapt", "ManifestID": 2}
+stat_manifest_info["Volumes"] = {"InstanceID": "Volume", "ManifestID": 5}
+stat_manifest_info["Disks"] = {"InstanceID": "Disk", "ManifestID": 1}
 
 # These align with the proper entries in Clar_Blockmanifest
 # 0 = Array
@@ -56,45 +50,87 @@ def convert_to_local(timestamp):
 
     return local_time
 
+def total_seconds(timedelta):
+    """ Hack for python 2.6, provides the total seconds in a timedelta object """
+    return (
+        timedelta.microseconds + 0.0 +
+        (timedelta.seconds + timedelta.days * 24 * 3600) * 10 ** 6) / 10 ** 6
+
+
+def get_array_instancename(ecom_conn, array_serial):
+    """ Returns the InstanceName of the array serial provided """
+
+    registered_arrays = ecom_conn.EnumerateInstanceNames("Clar_StorageSystem")
+    for array in registered_arrays:
+        if array_serial in array['Name']:
+            return array
+
+    # No array found
+    return None
+
+
+def ecom_connect(ecom_ip, ecom_user, ecom_pass, default_namespace="/root/emc"):
+    """ returns a connection to the ecom server """
+    ecom_url = "https://%s:5989" % ecom_ip
+
+    return pywbem.WBEMConnection(ecom_url, (ecom_user, ecom_pass),
+                                 default_namespace="/root/emc")
+    
+
+def get_sample_interval(ecom_conn, array_serial):
+    """ Returns the current sample interval in minutes """
+
+    array = get_array_instancename(ecom_conn, array_serial)
+    
+    SampleInterval = ecom_conn.Associators(array,
+                                           ResultClass="CIM_StatisticsCollection",
+                                           PropertyList=["SampleInterval"])
+
+    interval = total_seconds(SampleInterval[0]["SampleInterval"].timedelta)
+
+    return interval/60
+
+def set_sample_interval(ecom_conn, array_serial, sample_interval):
+
+    array = get_array_instancename(ecom_conn, array_serial)
+
+    SampleInterval = ecom_conn.Associators(array,
+                                           ResultClass="CIM_StatisticsCollection",
+                                           PropertyList=["SampleInterval"])
+
+    new_interval = timedelta(minutes = sample_interval)
+
+    SampleInterval[0]["SampleInterval"] = pywbem.CIMDateTime(new_interval)
+
+    ecom_conn.ModifyInstance(SampleInterval[0], PropertyList=["SampleInterval"])
+
+    return
 
 def get_stats(array_serial, ecom_ip, instance_id, ecom_user="admin",
               ecom_pass="#1Password"):
     """ Collect performance statistics """
 
-    ecom_url = "https://%s:5989" % ecom_ip
-    ecom_conn = pywbem.WBEMConnection(ecom_url, (ecom_user, ecom_pass),
-                                      default_namespace="/root/emc")
+    ecom_conn = ecom_connect(ecom_ip, ecom_user, ecom_pass)
 
-    q = "SELECT SampleInterval from CIM_StatisticsCollection where " \
-        "InstanceID='CLARiiON+%s'"
+    # Check and set the sample interval
+    interval = get_sample_interval(ecom_conn, array_serial)
+    if interval != sample_interval:
+        set_sample_interval(ecom_conn, array_serial, sample_interval)
 
-    info = ecom_conn.ExecQuery("DMTF:CQL", q % array_serial)
+    # Determine the sequence our Stats are coming in from the Manifest
+    array = get_array_instancename(ecom_conn, array_serial)
+    man_coll = ecom_conn.AssociatorNames(array,
+                                  ResultClass="CIM_BlockStatisticsManifestCollection")[0]
+    manifests = ecom_conn.Associators(man_coll,
+                                  ResultClass="CIM_BlockStatisticsManifest")
 
-    # Determine if the interval if 5 minutes, if not reset it to 10 minutes
-    if sample_interval < 10:
-        cim_dt = "00000000000%s00.000000:000" % (str(sample_interval))
-    else:
-        cim_dt = "0000000000%s00.000000:000" % (str(sample_interval))
+    for i in manifests:
+        if instance_id in i["InstanceID"]:
+            header_row = i["CSVSequence"]
 
-    if info[0]["SampleInterval"] != pywbem.CIMDateTime(cim_dt):
-        print "Setting interval to %d minutes" % (sample_interval)
-        info[0]["SampleInterval"] = pywbem.CIMDateTime(cim_dt)
-        ecom_conn.ModifyInstance(info[0], PropertyList=["SampleInterval"])
-
-    # Figure out what stats we're gathering
-
-    q = "SELECT * FROM Clar_Blockmanifest where InstanceID='%s'"
-    manifest = ecom_conn.ExecQuery("DMTF:CQL", q % instance_id)
-
-    header_row = manifest[0]["CSVSequence"]
-
-    stats_service = pywbem.CIMInstanceName("Clar_BlockStatisticsService",
-                                           keybindings=pywbem.NocaseDict({
-                                               'CreationClassName': 'Clar_BlockStatisticsService',
-                                               'SystemName':  'CLARiiON+' + array_serial,
-                                               'Name': 'EMCBlockStatisticsService',
-                                               'SystemCreationClassName': 'Clar_StorageSystem'
-                                           }), namespace='/root/emc')
+    # Grab our stats
+    stats_service = ecom_conn.AssociatorNames(array,
+                                  ResultClass="CIM_BlockStatisticsService")[0]
 
     stat_output = ecom_conn.InvokeMethod("GetStatisticsCollection",
                                          stats_service,
@@ -113,9 +149,10 @@ def process_stats(header_row, stat_output, array_serial, manifest_info,
 
     timestamp_index = header_row.index("StatisticTime")
     perf_dev_id_index = header_row.index("InstanceID")
-    element_type_index = header_row.index("ElementType")
 
-    skip_fields = [timestamp_index, perf_dev_id_index, element_type_index]
+    ignore_fields = ignore_fields + ["ElementType", "StatisticTime", "InstanceID"]
+
+    skip_fields = []
 
     for i in ignore_fields:
         skip_fields.append(header_row.index(i))
@@ -125,7 +162,9 @@ def process_stats(header_row, stat_output, array_serial, manifest_info,
     timestamp = None
     for row in reader:
 
-        timestamp = convert_to_local(row[timestamp_index]).strftime("%s")
+        if not timestamp:
+            timestamp = convert_to_local(row[timestamp_index]).strftime("%s")
+
         perf_dev_id = row[perf_dev_id_index]
 
         for i in range(0, len(header_row)):
@@ -173,7 +212,7 @@ def process_stats(header_row, stat_output, array_serial, manifest_info,
 def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
                    ecom_pass="#1Password"):
 
-    InstanceID = stat_manifest_info["SP"]["InstanceID"] % array_serial
+    InstanceID = stat_manifest_info["SP"]["InstanceID"]
 
     header_row, stat_output = get_stats(array_serial, ecom_ip, InstanceID,
                                         ecom_user, ecom_pass)

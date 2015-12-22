@@ -7,14 +7,9 @@ import argparse
 
 # User Configurable Parameters
 # --------------------------------
-ecom_ip = "10.5.36.50"
 ecom_user = "admin"
 ecom_pass = "#1Password"
 
-# Global Queries
-# --------------------------------
-ecom_queries = dict()
-ecom_queries["storage_proc"] = "SELECT * FROM CIM_RemoteServiceAccessPoint where SystemName LIKE 'CLARiiON+%s'"
 
 def get_array_instancename(array_serial, ecom_conn):
     """ Returns the InstanceName of the array serial provided """
@@ -326,6 +321,7 @@ def discover_array_devices(array_serial, ecom_ip, ecom_user="admin",
                                "{#DEVICETYPE}": "SP"
                               })
 
+    # Disks
     disks = ecom_conn.Associators(array,ResultClass="CIM_DiskDrive")
     for i in disks:
 
