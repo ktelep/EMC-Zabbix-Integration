@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2015-12-21T19:13:00Z</date>
+    <date>2015-12-23T21:25:51Z</date>
     <groups>
         <group>
             <name>VNX Storage Array</name>
@@ -329,7 +329,17 @@
                             <logtimefmt/>
                         </item_prototype>
                     </item_prototypes>
-                    <trigger_prototypes/>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{Template EMC VNX:emc.vnx.health.Status[{#DEVICEID}].iregexp(OK|OK ONLINE)}=0</expression>
+                            <name>{#DEVICENAME} Status</name>
+                            <url/>
+                            <status>0</status>
+                            <priority>2</priority>
+                            <description>If Hardware Value does not return OK</description>
+                            <type>0</type>
+                        </trigger_prototype>
+                    </trigger_prototypes>
                     <graph_prototypes/>
                     <host_prototypes/>
                 </discovery_rule>
@@ -1108,7 +1118,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1151,7 +1161,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1194,7 +1204,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units>Bps</units>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1237,7 +1247,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units>Bps</units>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1280,7 +1290,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units>Bps</units>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1323,7 +1333,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1581,7 +1591,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1624,7 +1634,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1667,7 +1677,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units>Bps</units>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1710,7 +1720,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units>Bps</units>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1753,7 +1763,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units>Bps</units>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>
@@ -1796,7 +1806,7 @@
                             <value_type>3</value_type>
                             <allowed_hosts/>
                             <units/>
-                            <delta>2</delta>
+                            <delta>1</delta>
                             <snmpv3_contextname/>
                             <snmpv3_securityname/>
                             <snmpv3_securitylevel>0</snmpv3_securitylevel>

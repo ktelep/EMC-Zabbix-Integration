@@ -14,7 +14,7 @@ This integration is expected to flex many of Zabbix's features including Low Lev
 *Prerequisites*
 
 1.  EMC ECOM Server installed with Storage arrays registered (make sure it's been running for a few hours to build out the object model and collect some stats)
-2.  pyWBEM python module installed on the Zabbix Server 
+2.  Python module: pywbem, argparse(If Python < 2.7)
 
 
 A script in the tools subdir can be used to easily add the array to the ECOM server if you are unfamiliar with the ECOM tools
@@ -31,6 +31,13 @@ A script in the tools subdir can be used to easily add the array to the ECOM ser
 
 
 ## Currently Supported Objects
+* Harware Monitoring
+  * Storage Processors
+  * Enclosures
+  * Fans
+  * Batteries (SPS)
+  * Disks
+  * LCC Cards
 * Storage Processors
   * Discovery
   * Up/Down validation
@@ -63,15 +70,17 @@ A script in the tools subdir can be used to easily add the array to the ECOM ser
 * Pools & RAID Groups
   * Discovery
   * Capacity/Subscribed
+  * Performance Metrics
 
 ## Future
-* Physical Disks
-  * Availability (online/offline)
+
 * Volumes
   * Capacity/Subscribed
   * Tresspassed or not
-* Pools & RAID Groups
-  * Performance Metrics
+  * Response Time
+* Pools
+  * RG Type
+  * Volume Offset
 
 Licensing
 ---------
