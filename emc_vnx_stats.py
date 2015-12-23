@@ -223,7 +223,7 @@ def sp_stats_query(array_serial, ecom_ip, ecom_user="admin",
 def volume_stats_query(array_serial, ecom_ip, ecom_user="admin",
                        ecom_pass="#1Password"):
 
-    InstanceID = stat_manifest_info["Volumes"]["InstanceID"] % array_serial
+    InstanceID = stat_manifest_info["Volumes"]["InstanceID"]
 
     header_row, stat_output = get_stats(array_serial, ecom_ip, InstanceID,
                                         ecom_user, ecom_pass)
@@ -255,7 +255,7 @@ def volume_stats_query(array_serial, ecom_ip, ecom_user="admin",
 def disk_stats_query(array_serial, ecom_ip, ecom_user="admin",
                      ecom_pass="#1Password"):
 
-    InstanceID = stat_manifest_info["Disks"]["InstanceID"] % array_serial
+    InstanceID = stat_manifest_info["Disks"]["InstanceID"]
 
     header_row, stat_output = get_stats(array_serial, ecom_ip, InstanceID,
                                         ecom_user, ecom_pass)
