@@ -1085,7 +1085,7 @@
                             <snmpv3_privpassphrase/>
                             <formula>1</formula>
                             <delay_flex/>
-                            <params>last(&quot;TotalManagedSpace[{#POOLDEVICEID}]&quot;) - last(&quot;RemainingManagedSpace[{#POOLDEVICEID}]&quot;)</params>
+                            <params>last(&quot;emc.vnx.perf.TotalManagedSpace[{#POOLDEVICEID}]&quot;) - last(&quot;emc.vnx.perf.RemainingManagedSpace[{#POOLDEVICEID}]&quot;)</params>
                             <ipmi_sensor/>
                             <data_type>0</data_type>
                             <authtype>0</authtype>
