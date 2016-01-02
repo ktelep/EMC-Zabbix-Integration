@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2015-12-23T21:25:51Z</date>
+    <date>2016-01-02T03:44:02Z</date>
     <groups>
         <group>
             <name>VNX Storage Array</name>
@@ -41,7 +41,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--array&quot;]</key>
+                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--ecom_user&quot;,{$ECOMUSER},&quot;--ecom_pass&quot;,{$ECOMPASS},&quot;--array&quot;]</key>
                     <delay>60</delay>
                     <history>2</history>
                     <trends>365</trends>
@@ -84,7 +84,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--disks&quot;]</key>
+                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--ecom_user&quot;,{$ECOMUSER},&quot;--ecom_pass&quot;,{$ECOMPASS},&quot;--disks&quot;]</key>
                     <delay>60</delay>
                     <history>2</history>
                     <trends>365</trends>
@@ -127,7 +127,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--pools&quot;]</key>
+                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--ecom_user&quot;,{$ECOMUSER},&quot;--ecom_pass&quot;,{$ECOMPASS},&quot;--pools&quot;]</key>
                     <delay>60</delay>
                     <history>2</history>
                     <trends>365</trends>
@@ -170,7 +170,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--procs&quot;]</key>
+                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--ecom_user&quot;,{$ECOMUSER},&quot;--ecom_pass&quot;,{$ECOMPASS},&quot;--procs&quot;]</key>
                     <delay>60</delay>
                     <history>2</history>
                     <trends>365</trends>
@@ -213,7 +213,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--volumes&quot;]</key>
+                    <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--ecom_user&quot;,{$ECOMUSER},&quot;--ecom_pass&quot;,{$ECOMPASS},&quot;--volumes&quot;]</key>
                     <delay>60</delay>
                     <history>2</history>
                     <trends>365</trends>
@@ -257,8 +257,8 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--array&quot;]</key>
-                    <delay>30</delay>
+                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--ecom_user={$ECOMUSER}&quot;,&quot;--ecom_pass={$ECOMPASS}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--array&quot;]</key>
+                    <delay>60</delay>
                     <status>0</status>
                     <allowed_hosts/>
                     <snmpv3_contextname/>
@@ -348,7 +348,7 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--disks&quot;]</key>
+                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--ecom_user={$ECOMUSER}&quot;,&quot;--ecom_pass={$ECOMPASS}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--disks&quot;]</key>
                     <delay>60</delay>
                     <status>0</status>
                     <allowed_hosts/>
@@ -990,7 +990,7 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--pools&quot;]</key>
+                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--ecom_user={$ECOMUSER}&quot;,&quot;--ecom_pass={$ECOMPASS}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--pools&quot;]</key>
                     <delay>60</delay>
                     <status>0</status>
                     <allowed_hosts/>
@@ -1024,7 +1024,7 @@
                             <snmp_community/>
                             <multiplier>0</multiplier>
                             <snmp_oid/>
-                            <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--poolperf&quot;,&quot;{#POOLDEVICEID}&quot;]</key>
+                            <key>emc_vnx_stats.py[&quot;--serial&quot;,{HOST.HOST},&quot;--ecom_ip&quot;,{$ECOMIP},&quot;--ecom_user&quot;,{$ECOMUSER},&quot;--ecom_pass&quot;,{$ECOMPASS},&quot;--poolperf&quot;,&quot;{#POOLDEVICEID}&quot;]</key>
                             <delay>60</delay>
                             <history>2</history>
                             <trends>365</trends>
@@ -1085,7 +1085,7 @@
                             <snmpv3_privpassphrase/>
                             <formula>1</formula>
                             <delay_flex/>
-                            <params>last(&quot;emc.vnx.perf.TotalManagedSpace[{#POOLDEVICEID}]&quot;) - last(&quot;emc.vnx.perf.RemainingManagedSpace[{#POOLDEVICEID}]&quot;)</params>
+                            <params>last(&quot;TotalManagedSpace[{#POOLDEVICEID}]&quot;) - last(&quot;RemainingManagedSpace[{#POOLDEVICEID}]&quot;)</params>
                             <ipmi_sensor/>
                             <data_type>0</data_type>
                             <authtype>0</authtype>
@@ -1535,6 +1535,45 @@
                             <logtimefmt/>
                         </item_prototype>
                         <item_prototype>
+                            <name>{#POOLNAME} - TEST Volume TotalIOs</name>
+                            <type>15</type>
+                            <snmp_community/>
+                            <multiplier>0</multiplier>
+                            <snmp_oid/>
+                            <key>emc.vnx.perf.TestPoolVolTotalIOs[{$POOLNAME}]</key>
+                            <delay>30</delay>
+                            <history>90</history>
+                            <trends>365</trends>
+                            <status>0</status>
+                            <value_type>3</value_type>
+                            <allowed_hosts/>
+                            <units/>
+                            <delta>1</delta>
+                            <snmpv3_contextname/>
+                            <snmpv3_securityname/>
+                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                            <snmpv3_authpassphrase/>
+                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                            <snmpv3_privpassphrase/>
+                            <formula>1</formula>
+                            <delay_flex/>
+                            <params>{#POOLVOLTOTALIOS}</params>
+                            <ipmi_sensor/>
+                            <data_type>0</data_type>
+                            <authtype>0</authtype>
+                            <username/>
+                            <password/>
+                            <publickey/>
+                            <privatekey/>
+                            <port/>
+                            <description/>
+                            <inventory_link>0</inventory_link>
+                            <applications/>
+                            <valuemap/>
+                            <logtimefmt/>
+                        </item_prototype>
+                        <item_prototype>
                             <name>{#POOLNAME} - Total Space</name>
                             <type>2</type>
                             <snmp_community/>
@@ -1902,7 +1941,7 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--procs&quot;]</key>
+                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--ecom_user={$ECOMUSER}&quot;,&quot;--ecom_pass={$ECOMPASS}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--procs&quot;]</key>
                     <delay>60</delay>
                     <status>0</status>
                     <allowed_hosts/>
@@ -2965,7 +3004,7 @@
                     <type>10</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--volumes&quot;]</key>
+                    <key>emc_vnx_discovery.py[&quot;--ecom_ip={$ECOMIP}&quot;,&quot;--ecom_user={$ECOMUSER}&quot;,&quot;--ecom_pass={$ECOMPASS}&quot;,&quot;--serial={HOST.HOST}&quot;,&quot;--volumes&quot;]</key>
                     <delay>60</delay>
                     <status>0</status>
                     <allowed_hosts/>
