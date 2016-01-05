@@ -25,6 +25,7 @@ A script in the tools subdir can be used to easily add the array to the ECOM ser
 2.  Confirm that the script Timeout value is set to at least 10 seconds in the zabbix_server.conf file.
 4.  Create a new host in Zabbix, with a hostname of the ARRAY SERIAL, the visible hostname may be whatever you like.
 5.  Create a host macro {$ECOMIP} with a value of the IP address of the ECOM server.
+6.  Create host macros: {$ECOMUSER}, {$ECOMPASS} with the ECOM username and password.
 5.  Update the Host inventory, setting it to manual to include the array serial number
 6.  Import the template and link to the newly added host
 7.  Patiently wait for the discovery and first sync to run
