@@ -581,6 +581,19 @@ def main():
 
     args = parser.parse_args()
 
+    # Check for zabbix_sender and agentd files
+    if not os.path.isfile(sender_command):
+        print ""
+        print "Unable to locate zabbix_sender command at: %s" % sender_command
+        print "Please update the script with the appropriate path"
+        sys.exit()
+
+    if not os.path.isfile(config_path):
+        print ""
+        print "Unable to locate zabbix_agentd.conf file at: %s" % config_path
+        print "Please update the script with the appropriate path"
+        sys.exit()
+
     array_serial = None
     item = None
 

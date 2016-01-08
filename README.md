@@ -22,7 +22,8 @@ A script in the tools subdir can be used to easily add the array to the ECOM ser
 *Installation*
 
 1.  Place the two python scripts included here in the external scripts directory for your zabbix server, be sure they are owned by, and executable by the zabbix user.
-2.  Confirm that the script Timeout value is set to at least 10 seconds in the zabbix_server.conf file.
+2.  Edit the emc_vnx_stats.py script, confirming that the path to the zabbix_sender command is correct along with the path to the agentd configuration file.
+2.  Confirm that the script Timeout value is set to 30 seconds in the zabbix_server.conf file.
 4.  Create a new host in Zabbix, with a hostname of the ARRAY SERIAL, the visible hostname may be whatever you like.
 5.  Create a host macro {$ECOMIP} with a value of the IP address of the ECOM server.
 6.  Create host macros: {$ECOMUSER}, {$ECOMPASS} with the ECOM username and password.
