@@ -269,9 +269,7 @@ def disk_stats_query(array_serial, ecom_ip, ecom_user="admin",
 def pool_stats_query(array_serial, ecom_ip, ecom_user="admin",
                       ecom_pass="#1Password"):
    
-    ecom_url = "https://%s:5989" % ecom_ip
-    ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
-                                      default_namespace="/root/emc")
+    ecom_conn = ecom_connect(ecom_ip, ecom_user, ecom_pass)
 
     # Lets locate our array
     array_list = ecom_conn.EnumerateInstanceNames("Clar_StorageSystem")
@@ -318,9 +316,7 @@ def pool_stats_query(array_serial, ecom_ip, ecom_user="admin",
 def hardware_healthcheck(array_serial, ecom_ip, ecom_user="admin",
                          ecom_pass="#1Password"):
 
-    ecom_url = "https://%s:5989" % ecom_ip
-    ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
-                                      default_namespace="/root/emc")
+    ecom_conn = ecom_connect(ecom_ip, ecom_user, ecom_pass)
 
     # Generate our timestamp 
     timestamp = datetime.now().strftime("%s")
@@ -470,9 +466,7 @@ def pool_performance(req_pool, array_serial, ecom_ip,
 
     array_pool = req_pool.replace("_"," ")
 
-    ecom_url = "https://%s:5989" % ecom_ip
-    ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
-                                      default_namespace="/root/emc")
+    ecom_conn = ecom_connect(ecom_ip, ecom_user, ecom_pass)
 
     # Lets locate our array
     array_list = ecom_conn.EnumerateInstanceNames("Clar_StorageSystem")

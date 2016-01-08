@@ -11,6 +11,13 @@ ecom_user = "admin"
 ecom_pass = "#1Password"
 
 
+def ecom_connect(ecom_ip, ecom_user, ecom_pass, default_namespace="/root/emc"):
+    """ returns a connection to the ecom server """
+    ecom_url = "https://%s:5989" % ecom_ip
+
+    return pywbem.WBEMConnection(ecom_url, (ecom_user, ecom_pass),
+                                 default_namespace="/root/emc")
+
 def get_array_instancename(array_serial, ecom_conn):
     """ Returns the InstanceName of the array serial provided """
 
@@ -22,24 +29,16 @@ def get_array_instancename(array_serial, ecom_conn):
     # No array found
     return None
 
-def discover_array_volumes(array_serial, ecom_ip, ecom_user="admin",
-                           ecom_pass="#1Password"):
+def discover_array_volumes(ecom_conn, array_serial):
     """Discover the Volumes in the VNX array
 
-
        Arguments-
-           array_serial:  (string) Serial number of array to discover
-           ecom_ip:       (string) IP Address of SMI-S/ECOM Server
-           ecom_user:     (string) Username for ECOM auth, default is "admin"
-           ecom_pass:     (string) Password for ECOM auth, default is "$1Password"
+           ecom_conn:     (pyWBEM) pyWBEM connection 
 
        Returns-
            Zabbix compatible List of Hashes to be JSONified or appended to additional data
 
     """
-    ecom_url = "https://%s:5989" % ecom_ip
-    ecom_conn = pywbem.WBEMConnection(ecom_url, (ecom_user, ecom_pass),
-                                      default_namespace="/root/emc")
 
     array = get_array_instancename(array_serial,ecom_conn)
 
@@ -60,24 +59,17 @@ def discover_array_volumes(array_serial, ecom_ip, ecom_user="admin",
     return discovered_volumes
 
 
-def discover_array_disks(array_serial, ecom_ip, ecom_user="admin",
-                         ecom_pass="#1Password"):
+def discover_array_disks(ecom_conn, array_serial):
+        
     """Discover the disks in the VNX array
 
-
        Arguments-
-           array_serial:  (string) Serial number of array to discover
-           ecom_ip:       (string) IP Address of SMI-S/ECOM Server
-           ecom_user:     (string) Username for ECOM auth, default is "admin"
-           ecom_pass:     (string) Password for ECOM auth, default is "$1Password"
+           ecom_conn:     (pyWBEM) pyWBEM connection 
 
        Returns-
            Zabbix compatible List of Hashes to be JSONified or appended to additional data
 
     """
-    ecom_url = "https://%s:5989" % ecom_ip
-    ecom_conn = pywbem.WBEMConnection(ecom_url, (ecom_user, ecom_pass),
-                                      default_namespace="/root/emc")
 
     array = get_array_instancename(array_serial, ecom_conn)
 
@@ -103,25 +95,16 @@ def discover_array_disks(array_serial, ecom_ip, ecom_user="admin",
     return discovered_disks
 
 
-def discover_array_SPs(array_serial, ecom_ip, ecom_user="admin",
-                       ecom_pass="#1Password"):
+def discover_array_SPs(ecom_conn, array_serial):
     """Discover the SPs in the VNX array
 
-
        Arguments-
-           array_serial:  (string) Serial number of array to discover
-           ecom_ip:       (string) IP Address of SMI-S/ECOM Server
-           ecom_user:     (string) Username for ECOM auth, default is "admin"
-           ecom_pass:     (string) Password for ECOM auth, default is "$1Password"
+           ecom_conn:     (pyWBEM) pyWBEM connection 
 
        Returns-
            Zabbix compatible List of Hashes to be JSONified or appended to additional data
 
     """
-    ecom_url = "https://%s:5989" % ecom_ip
-    ecom_conn = pywbem.WBEMConnection(ecom_url, (ecom_user, ecom_pass),
-                                      default_namespace="/root/emc")
-
     array = get_array_instancename(array_serial, ecom_conn)
     sps = ecom_conn.AssociatorNames(array,ResultClass="EMC_StorageProcessorSystem")
   
@@ -147,24 +130,17 @@ def discover_array_SPs(array_serial, ecom_ip, ecom_user="admin",
 
     return discovered_procs
 
-def discover_array_pools(array_serial, ecom_ip, ecom_user="admin",
-                       ecom_pass="#1Password"):
+def discover_array_pools(ecom_conn, array_serial):
+
     """Discover the Pools in the VNX array
 
-
        Arguments-
-           array_serial:  (string) Serial number of array to discover
-           ecom_ip:       (string) IP Address of SMI-S/ECOM Server
-           ecom_user:     (string) Username for ECOM auth, default is "admin"
-           ecom_pass:     (string) Password for ECOM auth, default is "$1Password"
+           ecom_conn:     (pyWBEM) pyWBEM connection 
 
        Returns-
            Zabbix compatible List of Hashes to be JSONified or appended to additional data
 
     """
-    ecom_url = "https://%s:5989" % ecom_ip
-    ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
-                                      default_namespace="/root/emc")
 
     # Lets locate our array
     array = get_array_instancename(array_serial,ecom_conn)
@@ -192,23 +168,17 @@ def discover_array_pools(array_serial, ecom_ip, ecom_user="admin",
     return discovered_pools
 
 
-def discover_array_devices(array_serial, ecom_ip, ecom_user="admin",
-                           ecom_pass="#1Password"):
+def discover_array_devices(ecom_conn, array_serial):
+
     """Discover the enclosures, batteries, etc. in the array
 
        Arguments-
-           array_serial:  (string) Serial number of array to discover
-           ecom_ip:       (string) IP Address of SMI-S/ECOM Server
-           ecom_user:     (string) Username for ECOM auth, default is "admin"
-           ecom_pass:     (string) Password for ECOM auth, default is "$1Password"
+           ecom_conn:     (pyWBEM) pyWBEM connection 
 
        Returns-
            Zabbix compatible List of Hashes to be JSONified or appended to additional data
 
     """
-    ecom_url = "https://%s:5989" % ecom_ip
-    ecom_conn = pywbem.WBEMConnection(ecom_url,(ecom_user,ecom_pass),
-                                      default_namespace="/root/emc")
 
     array_hardware = []
     # Lets locate our array
@@ -374,22 +344,19 @@ def main():
 
     args = parser.parse_args()
 
+    ecom_conn = ecom_connect(args.ecom_ip, args.ecom_user, args.ecom_pass)
+
     result = None
     if args.disks:
-        result = discover_array_disks(args.serial, args.ecom_ip, 
-                                      args.ecom_user, args.ecom_pass)
+        result = discover_array_disks(ecom_conn, args.serial)
     elif args.volumes:
-        result = discover_array_volumes(args.serial, args.ecom_ip, 
-                                        args.ecom_user, args.ecom_pass)
+        result = discover_array_volumes(ecom_conn, args.serial)
     elif args.procs: 
-        result = discover_array_SPs(args.serial, args.ecom_ip, 
-                                    args.ecom_user, args.ecom_pass)
+        result = discover_array_SPs(ecom_conn, args.serial)
     elif args.pools:
-        result = discover_array_pools(args.serial, args.ecom_ip, 
-                                      args.ecom_user, args.ecom_pass)
+        result = discover_array_pools(ecom_conn, args.serial)
     elif args.array:
-        result = discover_array_devices(args.serial, args.ecom_ip, 
-                                         args.ecom_user, args.ecom_pass)
+        result = discover_array_devices(ecom_conn, args.serial)
 
     
     print zabbix_safe_output(result)
