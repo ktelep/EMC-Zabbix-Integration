@@ -4,11 +4,6 @@ import json
 import pywbem
 import argparse
 
-# User Configurable Parameters
-# --------------------------------
-ecom_user = "admin"
-ecom_pass = "#1Password"
-
 
 def ecom_connect(ecom_ip, ecom_user, ecom_pass, default_namespace="/root/emc"):
     """ returns a connection to the ecom server """
