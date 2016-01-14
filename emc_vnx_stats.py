@@ -181,7 +181,7 @@ def process_stats(header_row, stat_output, array_serial, manifest_info,
             zabbix_key = "emc.vnx.perf.%s[%s]" % (header_row[i], perf_dev_id)
             zabbix_data.append("%s %s %s %s" % (array_serial, zabbix_key,
                                                 timestamp, row[i]))
-
+            
     print "------------------------------------------------------"
     current_time = datetime.now().strftime("%c")
     stat_time = datetime.fromtimestamp(int(timestamp)).strftime("%c")
@@ -235,8 +235,7 @@ def volume_stats_query(array_serial, ecom_ip, ecom_user="admin",
     header_row, stat_output = get_stats(array_serial, ecom_ip, InstanceID,
                                         ecom_user, ecom_pass)
 
-    skip_fields = ["EMCRaid3Writes", "EMCSampledReadsTime",
-                   "EMCSampledWritesTime", "EMCSnapCacheReads",
+    skip_fields = ["EMCRaid3Writes", "EMCSnapCacheReads",
                    "EMCSnapCacheWrites", "EMCSnapLogicalUnitReads",
                    "EMCSnapTLUReads", "EMCSnapTLUWrites",
                    "EMCSnapLargeWrites", "EMCSPAIOTimeCounter",
@@ -260,6 +259,7 @@ def volume_stats_query(array_serial, ecom_ip, ecom_user="admin",
     process_stats(header_row, stat_output, array_serial, "Volumes",
                   skip_fields)
 
+    # Calculate our response times
 
 def disk_stats_query(array_serial, ecom_ip, ecom_user="admin",
                      ecom_pass="#1Password"):
