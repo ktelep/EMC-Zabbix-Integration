@@ -1,5 +1,6 @@
 #!/bin/env python
 
+import sys
 import json
 import pywbem
 import argparse
@@ -399,6 +400,9 @@ def zabbix_safe_output(data):
 
     return output
 
+def log_exception_handler(type, value, tb):
+    logger = logging.getLogger('discovery')
+    logger.exception("Uncaught exception: {0}".format(str(value)))
 
 def setup_logging(log_file):
     """ Sets up our file logging with rotation """
@@ -414,6 +418,8 @@ def setup_logging(log_file):
 
     my_logger.addHandler(handler)
 
+    sys.excepthook = log_exception_handler
+ 
     return
 
 
