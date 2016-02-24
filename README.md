@@ -13,7 +13,8 @@ This integration is expected to flex many of Zabbix's features including Low Lev
 
 *Prerequisites*
 
-1.  EMC ECOM Server installed with Storage arrays registered (make sure it's been running for a few hours to build out the object model and collect some stats)
+1.  Confirm that block statistics collection is enabled on your array:  https://community.emc.com/docs/DOC-24564
+1.  EMC ECOM Server is installed with Storage arrays registered (make sure it's been running for a few hours to build out the object model and collect some stats)
     * Be sure you read the Installation documentation for the ECOM to confirm you have all of the necessary 32 and 64 bit libraries installed for your OS.
 2.  Python module: pywbem, argparse(If Python < 2.7)
 
@@ -31,6 +32,16 @@ A script in the tools subdir can be used to easily add the array to the ECOM ser
 5.  Update the Host inventory, setting it to manual to include the array serial number
 6.  Import the template and link to the newly added host
 7.  Patiently wait for the discovery and first sync to run
+
+*Troubleshooting*
+
+* Discovery Issues
+    *  Check the /tmp/emc_vnx_discovery.log file for any exceptions.
+    *  Check that you can run the scripts from the command line AS THE ZABBIX USER successfully, if you can run them from the command line but not from within Zabbix, you may want to confirm the host macros and host name have been properly configured.
+
+* Stats Collection Issues 
+    *  Each group of statisics have a "Statistics Collection" key that runs the external emc_vnx_stats.py collection script, check the output for exceptions or problems
+    *  If you see the error "ERROR_FAMILY_OPERATION_NOT_AVAILABLE Statistics Service is not enabled for array"  Be sure that you have Block Statistics data collection enabled (See https://community.emc.com/docs/DOC-24564)
 
 
 ## Currently Supported Objects
@@ -70,6 +81,7 @@ A script in the tools subdir can be used to easily add the array to the ECOM ser
     * FAST Cache Hits & Misses
     * Disk Crossings
     * Forced Flushes
+    * Response Time
 * Pools & RAID Groups
   * Discovery
   * Capacity/Subscribed
@@ -80,7 +92,6 @@ A script in the tools subdir can be used to easily add the array to the ECOM ser
 * Volumes
   * Capacity/Subscribed
   * Tresspassed or not
-  * Response Time
 * Pools
   * RG Type
   * Volume Offset
