@@ -7,8 +7,12 @@ import argparse
 import pywbem
 import StringIO
 import subprocess
+import logging
+import logging.handlers
 from collections import defaultdict
 from datetime import datetime, timedelta
+
+log_level = logging.DEBUG
 
 # User Configurable Parameters
 # --------------------------------
@@ -555,8 +559,34 @@ def pool_performance(req_pool, array_serial, ecom_ip,
 
     print "------------------------------------------------------\n"
 
+def log_exception_handler(type, value, tb):
+    logger = logging.getLogger('discovery')
+    logger.exception("Uncaught exception: {0}".format(str(value)))
+
+def setup_logging(log_file):
+    """ Sets up our file logging with rotation """
+    my_logger = logging.getLogger('discovery')
+    my_logger.setLevel(log_level)
+
+    handler = logging.handlers.RotatingFileHandler(
+                          log_file, maxBytes=5120000, backupCount=5)
+
+    formatter = logging.Formatter(
+        '%(asctime)s %(levelname)s %(process)d %(message)s')
+    handler.setFormatter(formatter)
+
+    my_logger.addHandler(handler)
+
+    sys.excepthook = log_exception_handler
+
+    return
 
 def main():
+   
+    log_file = '/tmp/emc_vnx_stats.log'
+    setup_logging(log_file)
+
+    logger = logging.getLogger('discovery')
 
     parser = argparse.ArgumentParser()
 
@@ -585,15 +615,18 @@ def main():
                        help="Collect individual perf stats on a pool")
 
     args = parser.parse_args()
+    logger.debug("Arguments parsed: %s" % str(args))
 
     # Check for zabbix_sender and agentd files
     if not os.path.isfile(sender_command):
+        logging.info("Unable to find sender command at: %s" % sender_command)
         print ""
         print "Unable to locate zabbix_sender command at: %s" % sender_command
         print "Please update the script with the appropriate path"
         sys.exit()
 
     if not os.path.isfile(config_path):
+        logging.info("Unable to find zabbix_agentd.conf at: %s" % config_path)
         print ""
         print "Unable to locate zabbix_agentd.conf file at: %s" % config_path
         print "Please update the script with the appropriate path"
