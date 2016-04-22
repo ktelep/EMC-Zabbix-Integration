@@ -12,7 +12,7 @@ import logging.handlers
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-log_level = logging.DEBUG
+log_level = logging.INFO
 
 # User Configurable Parameters
 # --------------------------------
